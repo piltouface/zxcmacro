@@ -1,9 +1,10 @@
-﻿param(
-    [int]$Days = 30,
-    [string[]]$ExtraRoots = @(),
-    [switch]$AllDrives,
-    [switch]$NoPause
-)
+﻿$SelfUrl = 'https://raw.githubusercontent.com/sweetvata/Y-macro/main/MacroCheck.ps1'
+$Days = 30
+if ($env:YMC_DAYS) { $Days = [int]$env:YMC_DAYS }
+$AllDrives = [bool]$env:YMC_ALLDRIVES
+$NoPause = [bool]$env:YMC_NOPAUSE
+$ExtraRoots = @()
+if ($env:YMC_ROOTS) { $ExtraRoots = @($env:YMC_ROOTS -split ';') }
 
 $ErrorActionPreference = 'SilentlyContinue'
 $ProgressPreference = 'SilentlyContinue'
@@ -51,9 +52,15 @@ function Show-Banner {
 Show-Banner
 
 $IsAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+$SelfPath = $MyInvocation.MyCommand.Path
 if (-not $IsAdmin) {
     Write-Host 'ERROR: Run as Administrator!' -ForegroundColor Red
-    if (-not $NoPause -and [Environment]::UserInteractive) { Read-Host 'Press Enter to exit' | Out-Null }
+    if (-not $NoPause) {
+        Write-Host 'Requesting elevation...' -ForegroundColor Gray
+        $relaunch = if ($SelfPath) { @('-NoProfile', '-STA', '-ExecutionPolicy', 'Bypass', '-File', ('"' + $SelfPath + '"')) } else { @('-NoProfile', '-STA', '-ExecutionPolicy', 'Bypass', '-Command', ('"irm ' + $SelfUrl + ' | iex"')) }
+        try { Start-Process powershell.exe -Verb RunAs -ArgumentList $relaunch; exit 0 } catch { Write-Host 'Elevation was declined.' -ForegroundColor Red }
+        if ([Environment]::UserInteractive) { Read-Host 'Press Enter to exit' | Out-Null }
+    }
     exit 1
 }
 
