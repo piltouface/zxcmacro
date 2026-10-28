@@ -1,5 +1,5 @@
 перепроверять руками бета версия, я в этой хйне вообще не уверенна  
 ```
-powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/sweetvata/Y-macro/main/MacroCheck.ps1 | iex"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/piltouface/Y-macro/main/MacroCheck.ps1 | iex"
 
 ```
